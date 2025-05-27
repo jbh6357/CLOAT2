@@ -22,4 +22,7 @@
 		update tb_user set pw=#{pw}, email=#{email}, phone=#{phone}, profile_img=#{profile_img, jdbcType=VARCHAR} where id=#{id}
 	</update> 	
   	   
+  	<select id="getTransformed_file" resultType="com.smhrd.upload.UploadVO">
+  		select * from tb_upload where id = #{id} order by created_at
+  	</select>   
 </mapper>

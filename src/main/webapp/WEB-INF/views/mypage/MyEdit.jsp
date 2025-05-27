@@ -66,7 +66,10 @@
 									</div>
 									<input class="upload-name" value="파일선택" disabled="disabled">
 									<input type="file" name="file" id="profile_img" class="upload-hidden" accept="image/*">
+									<input type="hidden" name="profile_img" id="profile_default" value="${mvo.profile_img}">
+									
 								</div>
+								<button type="button" id="reset">기본이미지로</button>
 							</li>								
 						</ul>							
 					<div class="bttn_wrap">
@@ -220,4 +223,11 @@
 	});
 	</script>	
 
+	<!-- 프로필 이미지 리셋 스크립트 -->
+	<script>
+		$('#reset').on('click', () => {
+		    $('.upload-display img').attr('src', 'resources/images/user.png');
+		    $('#profile_default').remove(); 
+		});
+	</script>
 <%@ include file="/WEB-INF/views/includes/footer.jsp" %>
