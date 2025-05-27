@@ -39,7 +39,7 @@
 			</c:forEach>
 			<c:if test="${empty list}">
 				<tr>
-					<td colspan="5">게시물이 없습니다</td>
+					<td colspan="5">${searchContent}에 관한 게시물이 없습니다</td>
 				</tr>
 			</c:if>
 		</table>

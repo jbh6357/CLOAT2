@@ -19,218 +19,231 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 
-@Controller 
+@Controller
 public class ReviewController {
-   
-   @Autowired
-   ReviewMapper mapper;
 
+	@Autowired
+	ReviewMapper mapper;
 
-    @Autowired
-    private ReviewService reviewService;
-    
-    @Autowired
-    ServletContext context;
+	@Autowired
+	private ReviewService reviewService;
 
-    // 리뷰 상세보기 + 조회수 증가
-    @RequestMapping("/reviewview")
-    public String reviewView(@RequestParam("no") int reviewIdx,
-                             @RequestParam(value="pageNum", defaultValue="1") int pageNum, Model model) {
-       reviewService.increaseViews(reviewIdx);
-        ReviewVO review = mapper.getReview(reviewIdx);
-        ReviewVO answer = reviewService.getAnswer(reviewIdx);
-        
-        model.addAttribute("review", review);
-        
-        
-        model.addAttribute("answer", answer);
-        model.addAttribute("pageNum", pageNum);  // 페이지 번호 같이 넘김
-        return "review/ReviewView";
-    }
-    
-    
-    
-    
+	@Autowired
+	ServletContext context;
 
-   // Answer 작성
-   @RequestMapping(value = "/writeReviewAnswer", method = RequestMethod.POST)
-   public String writeReviewAnswer(ReviewVO vo, HttpSession session, @RequestParam String id) {
+	// 리뷰 상세보기 + 조회수 증가
+	@RequestMapping("/reviewview")
+	public String reviewView(@RequestParam("no") int reviewIdx,
+			@RequestParam(value = "pageNum", defaultValue = "1") int pageNum, Model model) {
+		reviewService.increaseViews(reviewIdx);
+		ReviewVO review = mapper.getReview(reviewIdx);
+		ReviewVO answer = reviewService.getAnswer(reviewIdx);
 
-      System.out.println("loginId : " + id);
-      System.out.println("Review_idx : " + vo.getReview_idx());
+		model.addAttribute("review", review);
 
-      vo.setId(id);
-      System.out.println(vo);
-      int result = reviewService.writeReviewAnswer(vo);
+		model.addAttribute("answer", answer);
+		model.addAttribute("pageNum", pageNum); // 페이지 번호 같이 넘김
+		return "review/ReviewView";
+	}
 
-      if (result > 0) {
-         System.out.println("댓글 작성 성공");
-      } else {
-         System.out.println("댓글 작성 실패");
-      }
+	// Answer 작성
+	@RequestMapping(value = "/writeReviewAnswer", method = RequestMethod.POST)
+	public String writeReviewAnswer(ReviewVO vo, HttpSession session, @RequestParam String id) {
 
-      return "redirect:/reviewview?no=" + vo.getReview_idx();
-   }
+		System.out.println("loginId : " + id);
+		System.out.println("Review_idx : " + vo.getReview_idx());
 
-   // Answer 수정
-   @RequestMapping("/updateReviewAnswer")
-   public String updateReviewAnswer(ReviewVO vo, HttpSession session, @RequestParam String id) {
+		vo.setId(id);
+		System.out.println(vo);
+		int result = reviewService.writeReviewAnswer(vo);
 
-      System.out.println("loginId : " + id);
-      System.out.println("Review_idx : " + vo.getReview_idx());
+		if (result > 0) {
+			System.out.println("댓글 작성 성공");
+		} else {
+			System.out.println("댓글 작성 실패");
+		}
 
-      vo.setId(id);
-      System.out.println(vo);
+		return "redirect:/reviewview?no=" + vo.getReview_idx();
+	}
 
-      int result = reviewService.updateReviewAnswer(vo);
+	// Answer 수정
+	@RequestMapping("/updateReviewAnswer")
+	public String updateReviewAnswer(ReviewVO vo, HttpSession session, @RequestParam String id) {
 
-      if (result > 0) {
-         System.out.println("댓글 수정 성공");
-      } else {
-         System.out.println("댓글 수정 실패");
-      }
-      return "redirect:/reviewview?no=" + vo.getReview_idx();
-   }
+		System.out.println("loginId : " + id);
+		System.out.println("Review_idx : " + vo.getReview_idx());
 
-   // Answer 삭제
-   @RequestMapping("/deleteReviewAnswer")
-   public String deleteReviewAnswer(ReviewVO vo, HttpSession session, @RequestParam String id) {
-      
-      System.out.println("loginId : " + id);
-      System.out.println("Review_idx : " + vo.getReview_idx());
+		vo.setId(id);
+		System.out.println(vo);
 
-      vo.setId(id);
-      System.out.println(vo);
-      
-      int result = reviewService.deleteReviewAnswer(vo);
+		int result = reviewService.updateReviewAnswer(vo);
 
-      if (result > 0) {
-         System.out.println("댓글 삭제 성공");
-      } else {
-         System.out.println("댓글 삭제 실패");
-      }
+		if (result > 0) {
+			System.out.println("댓글 수정 성공");
+		} else {
+			System.out.println("댓글 수정 실패");
+		}
+		return "redirect:/reviewview?no=" + vo.getReview_idx();
+	}
 
-      return "redirect:/reviewview?no=" + vo.getReview_idx();
-   }
-   
-   @RequestMapping("/reviewcommentlist")
-   public String reviewcommentlist() {
-      return null;
-   }
+	// Answer 삭제
+	@RequestMapping("/deleteReviewAnswer")
+	public String deleteReviewAnswer(ReviewVO vo, HttpSession session, @RequestParam String id) {
 
-   
-   
+		System.out.println("loginId : " + id);
+		System.out.println("Review_idx : " + vo.getReview_idx());
 
+		vo.setId(id);
+		System.out.println(vo);
 
-    // 리뷰 목록 + 페이징 처리
-    @RequestMapping("/ReviewList")
-    public String reviewList(@RequestParam(value = "pageNum", defaultValue = "1") int pageNum, Model model) {
-        int pageSize = 10;
-        int startRow = (pageNum - 1) * pageSize + 1;
-        int endRow = pageNum * pageSize;
+		int result = reviewService.deleteReviewAnswer(vo);
 
-        int totalCount = mapper.getTotalCount();
-        int totalPageCount = (totalCount + pageSize - 1) / pageSize;
+		if (result > 0) {
+			System.out.println("댓글 삭제 성공");
+		} else {
+			System.out.println("댓글 삭제 실패");
+		}
 
-        List<ReviewVO> list = mapper.getReviewsByPage(startRow, endRow);
-        if (list == null) list = new ArrayList<>();
+		return "redirect:/reviewview?no=" + vo.getReview_idx();
+	}
 
-        int pageBlock = 10;
-        int startPageNum = ((pageNum - 1) / pageBlock) * pageBlock + 1;
-        int endPageNum = Math.min(startPageNum + pageBlock - 1, totalPageCount);
+	@RequestMapping("/reviewcommentlist")
+	public String reviewcommentlist() {
+		return null;
+	}
 
-        model.addAttribute("list", list);
-        model.addAttribute("pageNum", pageNum);
-        model.addAttribute("totalPageCount", totalPageCount);
-        model.addAttribute("startPageNum", startPageNum);
-        model.addAttribute("endPageNum", endPageNum);
+	// 리뷰 목록 + 페이징 처리
+	@RequestMapping("/ReviewList")
+	public String reviewList(@RequestParam(value = "pageNum", defaultValue = "1") int pageNum, Model model) {
+		int pageSize = 10;
+		int startRow = (pageNum - 1) * pageSize + 1;
+		int endRow = pageNum * pageSize;
 
-        return "review/Review";
-    }
+		int totalCount = mapper.getTotalCount();
+		int totalPageCount = (totalCount + pageSize - 1) / pageSize;
 
-    // 게시글 상세보기 (예: 리뷰 형식, 쿼리 파라미터로 reNum 받음)
-    @RequestMapping("/reviewdetailreview")
-    public ModelAndView detail(@RequestParam("reNum") String reNum) throws Exception {
-        return new ModelAndView("detail", "detail1", reviewService.getReviewDetail(reNum));
-    }
-    // 검색기능
-   @RequestMapping("/ReviewSearch")
-   public String ReviewSearch(@RequestParam String searchValue, @RequestParam String searchContent ,Model model) {
-      
-      List<ReviewVO> list = mapper.ReviewSearch(searchValue, searchContent);
-      System.out.println(searchValue + " " + searchContent);
-      model.addAttribute("list", list);
-      return "review/Review";
-   }
+		List<ReviewVO> list = mapper.getReviewsByPage(startRow, endRow);
+		if (list == null)
+			list = new ArrayList<>();
 
-   @RequestMapping("/ReviewWrite")
-   public String ReviewWrite(Model model) {
-      return "review/ReviewWrite";
-   }
-   // 글쓰기 기능
-   @RequestMapping("/ReviewUpload")
-   public String ReviewUpload(ReviewVO vo, @RequestParam(value= "file", required = false)MultipartFile file) {
-      String loc = context.getRealPath("/resources/file/");
-      FileOutputStream fos;
-      String fileDemo = null;
-      if (file != null && !file.isEmpty()) {
-         fileDemo = file.getOriginalFilename();
-         if(fileDemo.length() > 0) {
-            try {
-               String baseName = fileDemo.substring(0, fileDemo.lastIndexOf("."));
-               String extension = fileDemo.substring(fileDemo.lastIndexOf("."));
-               fileDemo = baseName + '_' + UUID.randomUUID().toString() + extension;
-               File targetFile = new File(loc, fileDemo);
-               fos = new FileOutputStream(targetFile);
-               fos.write(file.getBytes());
-               fos.close();
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
-         }
-      }
-      
-      vo.setReview_file(fileDemo);
-      vo.setReview_views(0);
-      
-      int result = mapper.write(vo);
-      
-      if(result>0) {
-         System.out.println("성공");
-      }else {
-         System.out.println("실패");
-      }
-      return "redirect:/ReviewList";
-   }
-   
-   // 마이페이지 - 내가 쓴 리뷰보기
-   @RequestMapping("/MyReview")
-   public String MyReview(@RequestParam(value = "pageNum", defaultValue = "1") int pageNum, 
-   					@RequestParam(value ="id") String id,
-   					Model model) {
-       int pageSize = 10;
-       int startRow = (pageNum - 1) * pageSize + 1;
-       int endRow = pageNum * pageSize;
-       System.out.println(id);
-       int totalCount = mapper.getTotalCount();
-       int totalPageCount = (totalCount + pageSize - 1) / pageSize;
-       List<ReviewVO> list = mapper.MyReview(startRow, endRow, id);
-       if (list == null) list = new ArrayList<>();
-       
-       int pageBlock = 10;
-       int startPageNum = ((pageNum - 1) / pageBlock) * pageBlock + 1;
-       int endPageNum = Math.min(startPageNum + pageBlock - 1, totalPageCount);
+		int pageBlock = 10;
+		int startPageNum = ((pageNum - 1) / pageBlock) * pageBlock + 1;
+		int endPageNum = Math.min(startPageNum + pageBlock - 1, totalPageCount);
 
-       model.addAttribute("list", list);
-       model.addAttribute("pageNum", pageNum);
-       model.addAttribute("totalPageCount", totalPageCount);
-       model.addAttribute("startPageNum", startPageNum);
-       model.addAttribute("endPageNum", endPageNum);
+		model.addAttribute("list", list);
+		model.addAttribute("pageNum", pageNum);
+		model.addAttribute("totalPageCount", totalPageCount);
+		model.addAttribute("startPageNum", startPageNum);
+		model.addAttribute("endPageNum", endPageNum);
 
-       return "mypage/MyReview";
-   }
-   
-   
+		return "review/Review";
+	}
+
+	// 게시글 상세보기 (예: 리뷰 형식, 쿼리 파라미터로 reNum 받음)
+	@RequestMapping("/reviewdetailreview")
+	public ModelAndView detail(@RequestParam("reNum") String reNum) throws Exception {
+		return new ModelAndView("detail", "detail1", reviewService.getReviewDetail(reNum));
+	}
+
+	// 검색기능
+	@RequestMapping("/ReviewSearch")
+	public String ReviewSearch(@RequestParam String searchValue, @RequestParam String searchContent ,
+								@RequestParam(value = "pageNum", defaultValue = "1") int pageNum, Model model) {
+
+		int pageSize = 10;
+		int startRow = (pageNum - 1) * pageSize + 1;
+		int endRow = pageNum * pageSize;
+
+		int totalCount = mapper.getTotalCountBySearch(searchValue, searchContent);
+		int totalPageCount = (totalCount + pageSize - 1) / pageSize;
+
+		List<ReviewVO> list = mapper.ReviewSearch(searchValue, searchContent, startRow, endRow);
+		if (list == null)
+			list = new ArrayList<>();
+
+		int pageBlock = 10;
+		int startPageNum = ((pageNum - 1) / pageBlock) * pageBlock + 1;
+		int endPageNum = Math.min(startPageNum + pageBlock - 1, totalPageCount);
+
+		System.out.println(searchValue + " " + searchContent);
+
+		model.addAttribute("list", list);
+		model.addAttribute("pageNum", pageNum);
+		model.addAttribute("totalPageCount", totalPageCount);
+		model.addAttribute("startPageNum", startPageNum);
+		model.addAttribute("endPageNum", endPageNum);
+		model.addAttribute("searchValue", searchValue);
+		model.addAttribute("searchContent", searchContent);
+
+		return "review/Review";
+	}
+
+	@RequestMapping("/ReviewWrite")
+	public String ReviewWrite(Model model) {
+		return "review/ReviewWrite";
+	}
+
+	// 글쓰기 기능
+	@RequestMapping("/ReviewUpload")
+	public String ReviewUpload(ReviewVO vo, @RequestParam(value = "file", required = false) MultipartFile file) {
+		String loc = context.getRealPath("/resources/file/");
+		FileOutputStream fos;
+		String fileDemo = null;
+		if (file != null && !file.isEmpty()) {
+			fileDemo = file.getOriginalFilename();
+			if (fileDemo.length() > 0) {
+				try {
+					String baseName = fileDemo.substring(0, fileDemo.lastIndexOf("."));
+					String extension = fileDemo.substring(fileDemo.lastIndexOf("."));
+					fileDemo = baseName + '_' + UUID.randomUUID().toString() + extension;
+					File targetFile = new File(loc, fileDemo);
+					fos = new FileOutputStream(targetFile);
+					fos.write(file.getBytes());
+					fos.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		vo.setReview_file(fileDemo);
+		vo.setReview_views(0);
+
+		int result = mapper.write(vo);
+
+		if (result > 0) {
+			System.out.println("성공");
+		} else {
+			System.out.println("실패");
+		}
+		return "redirect:/ReviewList";
+	}
+
+	// 마이페이지 - 내가 쓴 리뷰보기
+	@RequestMapping("/MyReview")
+	public String MyReview(@RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
+			@RequestParam(value = "id") String id, Model model) {
+		int pageSize = 10;
+		int startRow = (pageNum - 1) * pageSize + 1;
+		int endRow = pageNum * pageSize;
+		System.out.println(id);
+		int totalCount = mapper.getTotalCount();
+		int totalPageCount = (totalCount + pageSize - 1) / pageSize;
+		List<ReviewVO> list = mapper.MyReview(startRow, endRow, id);
+		if (list == null)
+			list = new ArrayList<>();
+
+		int pageBlock = 10;
+		int startPageNum = ((pageNum - 1) / pageBlock) * pageBlock + 1;
+		int endPageNum = Math.min(startPageNum + pageBlock - 1, totalPageCount);
+
+		model.addAttribute("list", list);
+		model.addAttribute("pageNum", pageNum);
+		model.addAttribute("totalPageCount", totalPageCount);
+		model.addAttribute("startPageNum", startPageNum);
+		model.addAttribute("endPageNum", endPageNum);
+
+		return "mypage/MyReview";
+	}
+
 }
-    
-   

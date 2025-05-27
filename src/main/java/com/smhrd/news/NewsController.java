@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.smhrd.notice.NoticeVO;
+
 @Controller 
 public class NewsController {
 	
@@ -91,11 +93,32 @@ public class NewsController {
     
 
 	@RequestMapping("/NewsSearch")
-	public String NewsSearch(@RequestParam String searchValue, @RequestParam String searchContent ,Model model) {
+	public String NewsSearch(@RequestParam String searchValue, @RequestParam String searchContent ,
+							  @RequestParam(value = "pageNum", defaultValue = "1") int pageNum, Model model) {
 		
-		List<NewsVO> list = mapper.NewsSearch(searchValue, searchContent);
+		int pageSize = 10;
+        int startRow = (pageNum - 1) * pageSize + 1;
+        int endRow = pageNum * pageSize;
+		
+        int totalCount = mapper.getTotalCountBySearch(searchValue, searchContent);
+        int totalPageCount = (totalCount + pageSize - 1) / pageSize;
+        
+		List<NewsVO> list = mapper.NewsSearch(searchValue, searchContent, startRow, endRow);
+		if (list == null) list = new ArrayList<>();
+		
+		int pageBlock = 10;
+        int startPageNum = ((pageNum - 1) / pageBlock) * pageBlock + 1;
+        int endPageNum = Math.min(startPageNum + pageBlock - 1, totalPageCount);
+		
 		System.out.println(searchValue + " " + searchContent);
+		
 		model.addAttribute("list", list);
+        model.addAttribute("pageNum", pageNum);
+        model.addAttribute("totalPageCount", totalPageCount);
+        model.addAttribute("startPageNum", startPageNum);
+        model.addAttribute("endPageNum", endPageNum);
+        model.addAttribute("searchValue", searchValue);
+        model.addAttribute("searchContent", searchContent);
 		return "news/News";
 	}
 
